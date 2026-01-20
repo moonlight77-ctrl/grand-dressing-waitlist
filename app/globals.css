@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+/* Configuration du thème Tailwind v4 */
+@theme {
+  /* On lie les classes font-display et font-sans aux variables définies dans layout.tsx */
+  --font-display: var(--font-cormorant);
+  --font-sans: var(--font-montserrat);
+}
+
+/* Ajout des utilitaires personnalisés présents dans votre code original */
+@layer utilities {
+  .text-shadow-gold {
+    text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+  }
+  
+  .letter-spacing-luxury {
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Styles globaux pour le body */
+body {
+  @apply bg-neutral-950 text-neutral-50;
+}
