@@ -45,7 +45,7 @@ export async function joinWaitlist(formData: FormData, referredByCode: string | 
     // B. Envoyer l'email via Resend
     const { error: emailError } = await resend.emails.send({
       // IMPORTANT : Utilisez 'contact@gradora.fr' OU 'contact@send.gradora.fr' selon votre validation Resend
-      from:'Gradora <contact@send.gradora.fr>',
+      from:'Gradora <contact@gradora.fr>',
       to: email,
       subject: 'Bienvenue dans la waitlist ✨',
       html: `
