@@ -1,0 +1,30 @@
+App Router (Next.js Next.js v16.1.3), RLS (Supabase), Webhooks (Stripe). 
+Architecture   | table_name |
+               | ---------- |
+               | waitlist   |
+Stack UI : Tailwind CSS v4 
+C:
+|   .env.local
+|   .gitignore
+|   eslint.config.mjs
+|   next.config.ts
+|   package.json
+|   postcss.config.mjs
+|   README.md
+|   tsconfig.json
+|   
++---app
+|   |   actions.ts
+|   |   favicon.ico
+|   |   globals.css
+|   |   layout.tsx
+|   |   page.tsx
+|   |   
+|   \---mentions
+|           page.tsx
+|           
++---components
+|       Features.tsx
+|       Footer.tsx
+|       Hero.tsx
+|       WaitlistForm.tsx
