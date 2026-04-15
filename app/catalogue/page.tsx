@@ -69,8 +69,8 @@ export default async function CataloguePage() {
               </p>
 
               <h1 className="font-display font-light leading-none">
-                <span className="block text-5xl text-neutral-100 tracking-tight">La sélection</span>
-                <span className="block text-5xl text-amber-400/80 tracking-tight mt-1">du moment</span>
+                <span className="block text-3xl md:text-5xl text-neutral-100 tracking-tight">La sélection</span>
+                <span className="block text-3xl md:text-5xl text-amber-400/80 tracking-tight mt-1">du moment</span>
               </h1>
 
               <p className="font-sans text-[11px] tracking-[0.15em] uppercase text-neutral-500 mt-6 max-w-xs leading-relaxed">

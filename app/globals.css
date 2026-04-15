@@ -8,16 +8,13 @@
 }
 
 /* Ajout des utilitaires personnalisés présents dans votre code original */
-@layer utilities {
-  .text-shadow-gold {
-    text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-  }
-  
-  .letter-spacing-luxury {
-    letter-spacing: 0.05em;
-  }
+@utility text-shadow-gold {
+  text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
 }
 
+@utility letter-spacing-luxury {
+  letter-spacing: 0.05em;
+}
 /* Styles globaux pour le body */
 body {
   @apply bg-neutral-950 text-neutral-50;
