@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Montserrat } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 
 // Configuration des polices
 const cormorant = Cormorant_Garamond({
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="fr">
       {/* On injecte les variables CSS des polices ici */}
       <body className={`${cormorant.variable} ${montserrat.variable} antialiased`}>
+        <Navbar />
         {children}
       </body>
     </html>

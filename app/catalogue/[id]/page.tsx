@@ -1,156 +1,75 @@
-// app/catalogue/[id]/page.tsx
-
-import Image from 'next/image';
-import Link from 'next/link';
+import { getProductById } from '../actions';
 import { notFound } from 'next/navigation';
-import { getProductById, getProducts } from '../actions';
+import Image from 'next/image';
 import CapacityBadge from '@/components/catalogue/CapacityBadge';
 import AddToDressingButton from '@/components/catalogue/AddToDressingButton';
+import Footer from '@/components/Footer';
 
-export const revalidate = 60;
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const product = await getProductById(id);
 
-export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((p) => ({ id: p.id }));
-}
-
-interface Props {
-  params: { id: string };
-}
-
-export default async function ProductPage({ params }: Props) {
-  const product = await getProductById(params.id);
   if (!product) notFound();
 
-  const fallbackImage = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800';
-
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-50 font-display selection:bg-amber-200/30">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-neutral-950/90 backdrop-blur-md border-b border-neutral-900">
-        <div className="max-w-screen-xl mx-auto px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="font-display text-xl font-light tracking-[0.2em] uppercase hover:text-amber-400 transition-colors">
-            Gradora
-          </Link>
-          <div className="flex items-center gap-8">
-            <Link href="/catalogue" className="font-sans text-[10px] tracking-[0.2em] uppercase text-amber-400">
-              Catalogue
-            </Link>
-            <Link href="/dressing" className="font-sans text-[10px] tracking-[0.2em] uppercase text-neutral-500 hover:text-neutral-200 transition-colors">
-              Mon dressing
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="max-w-screen-xl mx-auto px-8 py-12">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 font-sans text-[10px] tracking-[0.15em] uppercase text-neutral-600 mb-10">
-          <Link href="/" className="hover:text-neutral-400">Accueil</Link>
-          <span>·</span>
-          <Link href="/catalogue" className="hover:text-neutral-400">Catalogue</Link>
-          <span>·</span>
-          <span className="text-neutral-400 capitalize">{product.category}</span>
-          <span>·</span>
-          <span className="text-neutral-300">{product.name}</span>
-        </nav>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Image */}
-          <div className="relative aspect-[3/4] bg-neutral-900 overflow-hidden">
+    <main className="min-h-screen bg-neutral-950">
+      <section className="max-w-screen-xl mx-auto px-8 py-12 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+          
+          {/* Galerie Image */}
+          <div className="relative aspect-[3/4] bg-neutral-900 overflow-hidden group">
             <Image
-              src={product.image_url || fallbackImage}
+              src={product.image_url || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'}
               alt={product.name}
               fill
-              className="object-cover"
               priority
+              className="object-cover transition-transform duration-1000 group-hover:scale-105"
             />
             {product.is_featured && (
-              <div className="absolute top-4 left-4 bg-amber-400 text-black text-[9px] font-sans font-semibold tracking-[0.15em] uppercase px-2.5 py-1">
-                Sélection
-              </div>
+              <span className="absolute top-6 left-6 bg-amber-400 text-black text-[9px] font-bold uppercase tracking-[0.2em] px-4 py-2">
+                Pièce d'exception
+              </span>
             )}
           </div>
 
-          {/* Info */}
-          <div className="flex flex-col justify-center py-4">
-            <CapacityBadge cost={product.capacity_cost as 10 | 20 | 30} />
-
-            <div className="mt-4 mb-2">
-              <p className="font-sans text-[11px] tracking-[0.2em] uppercase text-neutral-500">
-                {product.brand}
-              </p>
-              <h1 className="font-display text-4xl font-light text-neutral-100 leading-tight mt-1">
+          {/* Infos Produit */}
+          <div className="flex flex-col">
+            <div className="mb-10 border-b border-neutral-900 pb-10">
+              <p className="text-amber-400 text-xs uppercase tracking-[0.3em] mb-4">{product.brand}</p>
+              <h1 className="text-3xl md:text-5xl font-light uppercase tracking-wider leading-tight mb-6">
                 {product.name}
               </h1>
-            </div>
-
-            <div className="flex items-center gap-3 mb-6">
-              <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-neutral-600 capitalize">
-                {product.category}
-              </span>
-              {product.style && (
-                <>
-                  <span className="w-1 h-1 rounded-full bg-neutral-800" />
-                  <span className="font-sans text-[10px] tracking-[0.15em] uppercase text-neutral-600 capitalize">
-                    {product.style}
-                  </span>
-                </>
-              )}
-            </div>
-
-            {/* Separateur */}
-            <div className="w-12 h-px bg-amber-400/30 mb-8" />
-
-            {/* Description */}
-            {product.description && (
-              <p className="font-sans text-sm text-neutral-400 leading-relaxed mb-8">
-                {product.description}
-              </p>
-            )}
-
-            {/* Details */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              {product.color && (
-                <div>
-                  <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-neutral-700 mb-1">Couleur</p>
-                  <p className="font-sans text-sm text-neutral-300">{product.color}</p>
-                </div>
-              )}
-              {product.material && (
-                <div>
-                  <p className="font-sans text-[9px] tracking-[0.2em] uppercase text-neutral-700 mb-1">Matière</p>
-                  <p className="font-sans text-sm text-neutral-300">{product.material}</p>
-                </div>
-              )}
-            </div>
-
-            {/* CTA client */}
-            <AddToDressingButton product={product} />
-
-            {/* Capacity info */}
-            <div className="mt-6 p-4 border border-neutral-900 bg-neutral-900/30">
-              <p className="font-sans text-[10px] tracking-[0.15em] uppercase text-neutral-600 mb-2">
-                Coût en capacité
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="flex gap-1">
-                  {[1, 2, 3].map((i) => (
-                    <span
-                      key={i}
-                      className={`w-3 h-3 rounded-full ${i <= product.capacity_cost / 10 ? 'bg-amber-400' : 'bg-neutral-800'}`}
-                    />
-                  ))}
-                </div>
-                <p className="font-sans text-sm text-neutral-300">
-                  <span className="text-amber-400 font-medium">{product.capacity_cost} points</span>
-                  {' '}sur votre abonnement mensuel
-                </p>
+              <div className="flex items-center gap-6">
+                <CapacityBadge cost={product.capacity_cost as any} />
+                <span className="text-neutral-500 text-[10px] uppercase tracking-widest border-l border-neutral-800 pl-6">
+                  {product.color} — {product.material}
+                </span>
               </div>
             </div>
+
+            <div className="space-y-8 mb-12">
+              <p className="text-neutral-400 text-sm leading-relaxed font-sans max-w-md">
+                {product.description}
+              </p>
+              
+              <div className="bg-neutral-900/30 p-6 border border-neutral-900">
+                <p className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2 italic">Note du styliste :</p>
+                <p className="text-xs text-neutral-300">Cette pièce s'inscrit parfaitement dans un look {product.style}.</p>
+              </div>
+            </div>
+
+            {/* Le bouton intelligent que nous avons créé */}
+            <div className="mt-auto">
+              <AddToDressingButton product={product} />
+              <p className="mt-4 text-[9px] text-center text-neutral-600 uppercase tracking-widest">
+                Livraison estimée : 48-72h · Pressing inclus
+              </p>
+            </div>
           </div>
+
         </div>
-      </div>
+      </section>
+      <Footer />
     </main>
   );
 }

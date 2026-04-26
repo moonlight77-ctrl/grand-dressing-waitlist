@@ -20,41 +20,6 @@ export default async function CataloguePage() {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-50 font-display selection:bg-amber-200/30">
       {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-neutral-950/90 backdrop-blur-md border-b border-neutral-900">
-        <div className="max-w-screen-xl mx-auto px-8 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-display text-xl font-light tracking-[0.2em] uppercase hover:text-amber-400 transition-colors"
-          >
-            Gradora
-          </Link>
-
-          <div className="flex items-center gap-8">
-            <Link
-              href="/catalogue"
-              className="font-sans text-[10px] tracking-[0.2em] uppercase text-amber-400 border-b border-amber-400/40 pb-0.5"
-            >
-              Catalogue
-            </Link>
-            <Link
-              href="/dressing"
-              className="font-sans text-[10px] tracking-[0.2em] uppercase text-neutral-500 hover:text-neutral-200 transition-colors"
-            >
-              Mon dressing
-            </Link>
-            <Link
-              href="/panier"
-              className="font-sans text-[10px] tracking-[0.2em] uppercase text-neutral-500 hover:text-neutral-200 transition-colors flex items-center gap-1.5"
-            >
-              Panier
-              {/* Cart badge placeholder */}
-              <span className="w-4 h-4 rounded-full bg-amber-400 text-black text-[9px] font-sans font-bold flex items-center justify-center leading-none">
-                0
-              </span>
-            </Link>
-          </div>
-        </div>
-      </nav>
 
       {/* Hero banner */}
       <section className="relative overflow-hidden border-b border-neutral-900">

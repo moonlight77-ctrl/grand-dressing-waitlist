@@ -33,6 +33,9 @@ export async function getProducts(filters?: Partial<CatalogueFilters>): Promise<
 
   if (error) {
     console.error('Erreur Supabase getProducts:', error);
+    console.error('Code:', error.code);
+    console.error('Message:', error.message);
+    console.error('Details:', error.details);
     return [];
   }
 
