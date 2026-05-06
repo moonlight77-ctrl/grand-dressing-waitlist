@@ -86,7 +86,7 @@ export default function CartPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] text-amber-400 uppercase tracking-widest mb-1">{item.brand}</p>
                   <h3 className="text-sm font-light uppercase tracking-wide truncate">{item.name}</h3>
-                  <p className="text-[10px] text-neutral-500 uppercase mt-2">{item.capacity_cost} Style Points</p>
+                  <p className="text-[10px] text-neutral-500 uppercase mt-2">{item.capacity_cost} CC </p>
                 </div>
                 <button 
                   onClick={() => removeItem(item.id)}

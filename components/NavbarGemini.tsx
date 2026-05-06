@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import CartStatus from './catalogue/CartStatus';
 import LogoutButton from './LogoutButton';
 import MiniCart from './navbar/MiniCart';
 import CapacityDropdown from './navbar/CapacityDropdown';
@@ -20,6 +21,7 @@ export default function Navbar() {
     };
     getUser();
 
+    // Écouter les changements d'auth (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -40,16 +42,15 @@ export default function Navbar() {
           {user && (
             <>
               <div className="hidden md:flex items-center gap-8 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
-                <Link href="/catalogue" className="hover:text-white transition-colors">Catalogue</Link>
-                <Link href="/mon-dressing" className="hover:text-white transition-colors">Mon Dressing</Link>
+                <Link href="/catalogue">Catalogue</Link>
+                <Link href="/mon-dressing">Mon Dressing</Link>
                 <Link href="/concept" className="hover:text-amber-400 transition-colors text-amber-200/50">Comment ça marche</Link>
               </div>
 
               <div className="flex items-center gap-6 border-l border-neutral-800 pl-6">
-                {/* Label renommé — le composant CapacityDropdown doit afficher
-                    "CAPACITÉ DE DRESSING : X / 50 PTS" */}
                 <CapacityDropdown />
                 <MiniCart />
+                <Link href="/panier"><CartStatus /></Link>
                 <LogoutButton />
               </div>
             </>
