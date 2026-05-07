@@ -290,7 +290,7 @@ export default function ProductEditSheet({ product, open, onClose }: Props) {
           {/* Toggles */}
           <div className="grid grid-cols-2 gap-4">
             {[
-              { name: 'is_available', label: 'Disponible', defaultVal: product?.is_available ?? true },
+              { name: 'status', label: 'Disponible', defaultVal: (product?.status ?? 'available') === 'available' },
               { name: 'is_featured',  label: 'Sélection',  defaultVal: product?.is_featured ?? false },
             ].map(({ name, label, defaultVal }) => (
               <label key={name} className="flex items-center justify-between border border-neutral-800 px-4 py-3 cursor-pointer hover:border-neutral-700 transition-colors">

@@ -20,6 +20,8 @@ export interface Product {
   color: string | null;
   material: string | null;
   is_featured: boolean;
+  is_available: boolean;
+  updated_at: string | null;
 }
 
 export interface CatalogueFilters {
