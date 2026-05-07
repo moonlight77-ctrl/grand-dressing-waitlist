@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-// ── Vérification admin ──
+// ── Vérification admin (uniquement pour les mutations) ──
 async function requireAdmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -20,16 +20,20 @@ async function requireAdmin() {
   return supabase;
 }
 
-// ── Récupérer tous les produits (admin) ──
+// ── Récupérer tous les produits ──
+// Pas de requireAdmin ici — redirect() dans un useEffect côté client throw silencieusement
 export async function getAdminProducts() {
-  const supabase = await requireAdmin();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('products')
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (error) return [];
+  if (error) {
+    console.error('getAdminProducts error:', error);
+    return [];
+  }
   return data;
 }
 
@@ -43,18 +47,18 @@ export async function createProduct(formData: FormData) {
     .filter(Boolean);
 
   const { error } = await supabase.from('products').insert([{
-    name:            formData.get('name') as string,
-    brand:           formData.get('brand') as string,
-    description:     formData.get('description') as string,
-    color:           formData.get('color') as string,
-    material:        formData.get('material') as string,
-    style:           formData.get('style') as string,
-    category:        formData.get('category') as string,
+    name:          formData.get('name') as string,
+    brand:         formData.get('brand') as string,
+    description:   formData.get('description') as string,
+    color:         formData.get('color') as string,
+    material:      formData.get('material') as string,
+    style:         formData.get('style') as string,
+    category:      formData.get('category') as string,
     sizes,
-    capacity_cost:   Number(formData.get('capacity_cost')),
-    image_url:       formData.get('image_url') as string || null,
-    is_featured:     formData.get('is_featured') === 'true',
-    is_available:    formData.get('is_available') === 'true',
+    capacity_cost: Number(formData.get('capacity_cost')),
+    image_url:     (formData.get('image_url') as string) || null,
+    is_featured:   formData.get('is_featured') === 'true',
+    status:        formData.get('status') === 'true' ? 'available' : 'unavailable',
   }]);
 
   if (error) return { success: false, message: error.message };
@@ -82,9 +86,9 @@ export async function updateProduct(id: string, formData: FormData) {
     category:      formData.get('category') as string,
     sizes,
     capacity_cost: Number(formData.get('capacity_cost')),
-    image_url:     formData.get('image_url') as string || null,
+    image_url:     (formData.get('image_url') as string) || null,
     is_featured:   formData.get('is_featured') === 'true',
-    is_available:  formData.get('is_available') === 'true',
+    status:        formData.get('status') === 'true' ? 'available' : 'unavailable',
     updated_at:    new Date().toISOString(),
   }).eq('id', id);
 
