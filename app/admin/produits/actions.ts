@@ -2,22 +2,16 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
-// ── Vérification admin (uniquement pour les mutations) ──
-async function requireAdmin() {
-  const supabase = await createClient();
+
+
+// ── Vérification admin sans redirect (pour appels client-side) ──
+async function checkAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-
+  if (!user) return false;
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile?.is_admin) redirect('/catalogue');
-  return supabase;
+    .from('profiles').select('is_admin').eq('id', user.id).single();
+  return profile?.is_admin === true;
 }
 
 // ── Récupérer tous les produits ──
@@ -39,7 +33,8 @@ export async function getAdminProducts() {
 
 // ── Créer un produit ──
 export async function createProduct(formData: FormData) {
-  const supabase = await requireAdmin();
+  const supabase = await createClient();
+  if (!(await checkAdmin(supabase))) return { success: false, message: 'Non autorisé.' };
 
   const sizes = (formData.get('sizes') as string)
     .split(',')
@@ -69,7 +64,8 @@ export async function createProduct(formData: FormData) {
 
 // ── Modifier un produit ──
 export async function updateProduct(id: string, formData: FormData) {
-  const supabase = await requireAdmin();
+  const supabase = await createClient();
+  if (!(await checkAdmin(supabase))) return { success: false, message: 'Non autorisé.' };
 
   const sizes = (formData.get('sizes') as string)
     .split(',')
@@ -101,7 +97,19 @@ export async function updateProduct(id: string, formData: FormData) {
 
 // ── Supprimer un produit ──
 export async function deleteProduct(id: string) {
-  const supabase = await requireAdmin();
+  const supabase = await createClient();
+
+  // Vérif manuelle sans redirect() — évite le throw dans startTransition côté client
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: 'Non authentifié.' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.is_admin) return { success: false, message: 'Non autorisé.' };
 
   const { error } = await supabase
     .from('products')
@@ -116,7 +124,8 @@ export async function deleteProduct(id: string) {
 
 // ── Upload image vers Supabase Storage ──
 export async function uploadProductImage(file: File): Promise<string | null> {
-  const supabase = await requireAdmin();
+  const supabase = await createClient();
+  if (!(await checkAdmin(supabase))) return null;
 
   const ext = file.name.split('.').pop();
   const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
