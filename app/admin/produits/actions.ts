@@ -1,21 +1,44 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
-
-
-// ── Vérification admin sans redirect (pour appels client-side) ──
-async function checkAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return false;
-  const { data: profile } = await supabase
-    .from('profiles').select('is_admin').eq('id', user.id).single();
-  return profile?.is_admin === true;
+// Client service role — bypass RLS, uniquement pour les mutations admin
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 }
 
+// Vérification que l'utilisateur connecté est bien admin
+async function isAdmin(): Promise<boolean> {
+  try {
+    const supabase = await createClient(); // Pour l'auth
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    // UTILISE LE SERVICE ROLE CLIENT ICI (celui qui bypass le RLS)
+    const adminClient = getServiceClient(); 
+    
+    const { data: profile, error } = await adminClient
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erreur isAdmin:', error);
+      return false;
+    }
+
+    return profile?.is_admin === true;
+  } catch (e) {
+    return false;
+  }
+}
 // ── Récupérer tous les produits ──
-// Pas de requireAdmin ici — redirect() dans un useEffect côté client throw silencieusement
 export async function getAdminProducts() {
   const supabase = await createClient();
 
@@ -33,13 +56,11 @@ export async function getAdminProducts() {
 
 // ── Créer un produit ──
 export async function createProduct(formData: FormData) {
-  const supabase = await createClient();
-  if (!(await checkAdmin(supabase))) return { success: false, message: 'Non autorisé.' };
+  if (!(await isAdmin())) return { success: false, message: 'Non autorisé.' };
+  const supabase = getServiceClient();
 
   const sizes = (formData.get('sizes') as string)
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
+    .split(',').map((s) => s.trim()).filter(Boolean);
 
   const { error } = await supabase.from('products').insert([{
     name:          formData.get('name') as string,
@@ -56,7 +77,7 @@ export async function createProduct(formData: FormData) {
     status:        formData.get('status') === 'true' ? 'available' : 'unavailable',
   }]);
 
-  if (error) return { success: false, message: error.message };
+  if (error) { console.error('createProduct:', error); return { success: false, message: error.message }; }
   revalidatePath('/admin/produits');
   revalidatePath('/catalogue');
   return { success: true };
@@ -64,13 +85,11 @@ export async function createProduct(formData: FormData) {
 
 // ── Modifier un produit ──
 export async function updateProduct(id: string, formData: FormData) {
-  const supabase = await createClient();
-  if (!(await checkAdmin(supabase))) return { success: false, message: 'Non autorisé.' };
+  if (!(await isAdmin())) return { success: false, message: 'Non autorisé.' };
+  const supabase = getServiceClient();
 
   const sizes = (formData.get('sizes') as string)
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
+    .split(',').map((s) => s.trim()).filter(Boolean);
 
   const { error } = await supabase.from('products').update({
     name:          formData.get('name') as string,
@@ -85,10 +104,10 @@ export async function updateProduct(id: string, formData: FormData) {
     image_url:     (formData.get('image_url') as string) || null,
     is_featured:   formData.get('is_featured') === 'true',
     status:        formData.get('status') === 'true' ? 'available' : 'unavailable',
-    updated_at:    new Date().toISOString(),
+
   }).eq('id', id);
 
-  if (error) return { success: false, message: error.message };
+  if (error) { console.error('updateProduct:', error); return { success: false, message: error.message }; }
   revalidatePath('/admin/produits');
   revalidatePath('/catalogue');
   revalidatePath(`/catalogue/${id}`);
@@ -97,26 +116,12 @@ export async function updateProduct(id: string, formData: FormData) {
 
 // ── Supprimer un produit ──
 export async function deleteProduct(id: string) {
-  const supabase = await createClient();
+  if (!(await isAdmin())) return { success: false, message: 'Non autorisé.' };
+  const supabase = getServiceClient();
 
-  // Vérif manuelle sans redirect() — évite le throw dans startTransition côté client
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { success: false, message: 'Non authentifié.' };
+  const { error } = await supabase.from('products').delete().eq('id', id);
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile?.is_admin) return { success: false, message: 'Non autorisé.' };
-
-  const { error } = await supabase
-    .from('products')
-    .delete()
-    .eq('id', id);
-
-  if (error) return { success: false, message: error.message };
+  if (error) { console.error('deleteProduct:', error); return { success: false, message: error.message }; }
   revalidatePath('/admin/produits');
   revalidatePath('/catalogue');
   return { success: true };
@@ -124,8 +129,8 @@ export async function deleteProduct(id: string) {
 
 // ── Upload image vers Supabase Storage ──
 export async function uploadProductImage(file: File): Promise<string | null> {
-  const supabase = await createClient();
-  if (!(await checkAdmin(supabase))) return null;
+  if (!(await isAdmin())) return null;
+  const supabase = getServiceClient();
 
   const ext = file.name.split('.').pop();
   const filename = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -134,11 +139,8 @@ export async function uploadProductImage(file: File): Promise<string | null> {
     .from('product-images')
     .upload(filename, file, { contentType: file.type, upsert: false });
 
-  if (error) return null;
+  if (error) { console.error('uploadProductImage:', error); return null; }
 
-  const { data } = supabase.storage
-    .from('product-images')
-    .getPublicUrl(filename);
-
+  const { data } = supabase.storage.from('product-images').getPublicUrl(filename);
   return data.publicUrl;
 }

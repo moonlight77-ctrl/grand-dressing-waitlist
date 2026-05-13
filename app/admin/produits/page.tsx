@@ -34,8 +34,8 @@ export default function AdminProduitsPage() {
         (p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
       );
     }
-    if (statusFilter === 'available')   result = result.filter((p) => p.is_available);
-    if (statusFilter === 'unavailable') result = result.filter((p) => !p.is_available);
+    if (statusFilter === 'available')   result = result.filter((p) => p.status === 'available');
+    if (statusFilter === 'unavailable') result = result.filter((p) => p.status !== 'available');
     setFiltered(result);
   }, [search, statusFilter, products]);
 
@@ -53,8 +53,8 @@ export default function AdminProduitsPage() {
     setProducts(data as Product[]);
   };
 
-  const available   = products.filter((p) => p.is_available).length;
-  const unavailable = products.filter((p) => !p.is_available).length;
+  const available   = products.filter((p) => p.status === 'available').length;
+  const unavailable = products.filter((p) => p.status !== 'available').length;
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-50 px-4 md:px-8 py-10">
@@ -158,7 +158,7 @@ export default function AdminProduitsPage() {
                       Sélection
                     </span>
                   )}
-                  {!product.is_available && (
+                  {product.status !== 'available' && (
                     <span className="absolute top-0 right-0 bg-neutral-800 text-neutral-400 text-[8px] font-bold uppercase tracking-wider px-2 py-1">
                       Indispo
                     </span>
