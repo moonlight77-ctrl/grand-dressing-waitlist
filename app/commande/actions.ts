@@ -1,6 +1,14 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
+
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 import { revalidatePath } from 'next/cache';
 
 export type OrderFormData = {
@@ -38,12 +46,13 @@ export async function submitOrder(
     return { success: false, message: 'Non authentifiée.' };
   }
 
-  // 2. Récupérer le profil pour vérifier la capacité
-  const { data: profile } = await supabase
+  // 2. Récupérer le profil via service role (bypass RLS)
+  const serviceClient = getServiceClient();
+  const { data: profile } = await serviceClient
     .from('profiles')
     .select('style_points_total, style_points_used')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (!profile) {
     return { success: false, message: 'Profil introuvable.' };
@@ -94,7 +103,7 @@ export async function submitOrder(
   }
 
   // 5. Mettre à jour les points utilisés dans le profil
-  await supabase
+  await serviceClient
     .from('profiles')
     .update({ style_points_used: profile.style_points_used + totalCost })
     .eq('id', user.id);
