@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useTransition } from 'react';
+import { useState, useRef, useTransition, useEffect } from 'react';
 import { X, Plus, Trash2, Upload, Link as LinkIcon } from 'lucide-react';
 import { updateProduct, createProduct } from '@/app/admin/produits/actions';
 import type { Product } from '@/types/product';
@@ -11,8 +11,18 @@ interface Props {
   onClose: () => void;
 }
 
-const STYLES    = ['Casual', 'Chic', 'Streetwear', 'Soirée', 'Sport', 'Business'];
-const CATEGORIES = ['Femme', 'Homme', 'Accessoires'];
+const STYLES = [
+  { value: 'casual',     label: 'Casual' },
+  { value: 'business',   label: 'Business' },
+  { value: 'soiree',     label: 'Soirée' },
+  { value: 'sport',      label: 'Sport' },
+  { value: 'streetwear', label: 'Streetwear' },
+];
+const CATEGORIES = [
+  { value: 'femme',       label: 'Femme' },
+  { value: 'homme',       label: 'Homme' },
+  { value: 'accessoires', label: 'Accessoires' },
+];
 const COSTS     = [10, 20, 30] as const;
 
 export default function ProductEditSheet({ product, open, onClose }: Props) {
@@ -27,7 +37,40 @@ export default function ProductEditSheet({ product, open, onClose }: Props) {
   // Tailles — gestion par chips
   const [sizes, setSizes] = useState<string[]>(product?.sizes || []);
   const [sizeInput, setSizeInput] = useState('');
+
+  // Sync states when product prop changes (panel réouvert sur un autre produit)
+  useEffect(() => {
+    setPreviewUrl(product?.image_url || '');
+    setSizes(product?.sizes || []);
+    setSelectedCost(product?.capacity_cost ?? 10);
+    setForm({
+      name:        product?.name || '',
+      brand:       product?.brand || '',
+      description: product?.description || '',
+      color:       product?.color || '',
+      material:    product?.material || '',
+      style:       product?.style || '',
+      category:    product?.category || '',
+      is_featured: product?.is_featured ?? false,
+      status:      product?.status ?? 'available',
+    });
+    setError(null);
+    setSuccess(false);
+  }, [product]);
   const [selectedCost, setSelectedCost] = useState<10 | 20 | 30>(product?.capacity_cost ?? 10);
+  const [form, setForm] = useState({
+    name:        product?.name || '',
+    brand:       product?.brand || '',
+    description: product?.description || '',
+    color:       product?.color || '',
+    material:    product?.material || '',
+    style:       product?.style || '',
+    category:    product?.category || '',
+    is_featured: product?.is_featured ?? false,
+    status:      product?.status ?? 'available',
+  });
+  const setField = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const addSize = () => {
     const val = sizeInput.trim().toUpperCase();
@@ -170,11 +213,11 @@ export default function ProductEditSheet({ product, open, onClose }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Nom *</label>
-              <input name="name" required defaultValue={product?.name} className={inputCls} placeholder="Nom de la pièce" />
+              <input name="name" required value={form.name} onChange={setField("name")} className={inputCls} placeholder="Nom de la pièce" />
             </div>
             <div>
               <label className={labelCls}>Marque *</label>
-              <input name="brand" required defaultValue={product?.brand} className={inputCls} placeholder="Nike, Zara..." />
+              <input name="brand" required value={form.brand} onChange={setField("brand")} className={inputCls} placeholder="Nike, Zara..." />
             </div>
           </div>
 
@@ -183,7 +226,7 @@ export default function ProductEditSheet({ product, open, onClose }: Props) {
             <label className={labelCls}>Description</label>
             <textarea
               name="description"
-              defaultValue={product?.description || ''}
+              value={form.description} onChange={setField("description")}
               rows={3}
               className={`${inputCls} resize-none`}
               placeholder="Description de la pièce..."
@@ -194,11 +237,11 @@ export default function ProductEditSheet({ product, open, onClose }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Couleur</label>
-              <input name="color" defaultValue={product?.color || ''} className={inputCls} placeholder="Noir, Beige..." />
+              <input name="color" value={form.color} onChange={setField("color")} className={inputCls} placeholder="Noir, Beige..." />
             </div>
             <div>
               <label className={labelCls}>Matière</label>
-              <input name="material" defaultValue={product?.material || ''} className={inputCls} placeholder="Coton, Soie..." />
+              <input name="material" value={form.material} onChange={setField("material")} className={inputCls} placeholder="Coton, Soie..." />
             </div>
           </div>
 
@@ -206,16 +249,16 @@ export default function ProductEditSheet({ product, open, onClose }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Style</label>
-              <select name="style" defaultValue={product?.style || ''} className={inputCls}>
+              <select name="style" value={form.style} onChange={setField("style")} className={inputCls}>
                 <option value="">— Choisir —</option>
-                {STYLES.map((s) => <option key={s} value={s}>{s}</option>)}
+                {STYLES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
             <div>
               <label className={labelCls}>Catégorie</label>
-              <select name="category" defaultValue={product?.category || ''} className={inputCls}>
-                <option value="">— Choisir —</option>
-                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              <select name="category" value={form.category} onChange={setField("category")} required className={inputCls}>
+                <option value="" disabled>— Choisir —</option>
+                {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
           </div>
@@ -286,21 +329,28 @@ export default function ProductEditSheet({ product, open, onClose }: Props) {
 
           {/* Toggles */}
           <div className="grid grid-cols-2 gap-4">
-            {[
-              { name: 'status', label: 'Disponible', defaultVal: (product?.status ?? 'available') === 'available' },
-              { name: 'is_featured',  label: 'Sélection',  defaultVal: product?.is_featured ?? false },
-            ].map(({ name, label, defaultVal }) => (
-              <label key={name} className="flex items-center justify-between border border-neutral-800 px-4 py-3 cursor-pointer hover:border-neutral-700 transition-colors">
-                <span className="text-[10px] uppercase tracking-widest text-neutral-400">{label}</span>
-                <input
-                  type="checkbox"
-                  name={name}
-                  value="true"
-                  defaultChecked={defaultVal}
-                  className="w-4 h-4 accent-amber-400"
-                />
-              </label>
-            ))}
+            <label className="flex items-center justify-between border border-neutral-800 px-4 py-3 cursor-pointer hover:border-neutral-700 transition-colors">
+              <span className="text-[10px] uppercase tracking-widest text-neutral-400">Disponible</span>
+              <input
+                type="checkbox"
+                name="status"
+                value="true"
+                checked={form.status === 'available'}
+                onChange={(e) => setForm((p) => ({ ...p, status: e.target.checked ? 'available' : 'unavailable' }))}
+                className="w-4 h-4 accent-amber-400"
+              />
+            </label>
+            <label className="flex items-center justify-between border border-neutral-800 px-4 py-3 cursor-pointer hover:border-neutral-700 transition-colors">
+              <span className="text-[10px] uppercase tracking-widest text-neutral-400">Sélection</span>
+              <input
+                type="checkbox"
+                name="is_featured"
+                value="true"
+                checked={form.is_featured === true}
+                onChange={(e) => setForm((p) => ({ ...p, is_featured: e.target.checked }))}
+                className="w-4 h-4 accent-amber-400"
+              />
+            </label>
           </div>
 
           {/* Feedback */}
