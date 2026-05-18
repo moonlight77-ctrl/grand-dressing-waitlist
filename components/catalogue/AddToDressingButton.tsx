@@ -16,12 +16,13 @@ export default function AddToDressingButton({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
 
   const isAlreadyInCart = items.some(item => item.id === product.id);
-
-  // On détecte si on est sur une fiche produit /catalogue/[id]
   const isProductPage = pathname.startsWith('/catalogue/');
 
   const handleAdd = () => {
     if (!selectedSize) return;
+    
+    // Si tu as besoin de passer la taille sélectionnée au panier, 
+    // tu pourras faire : addItem({ ...product, selectedSize }) si ton store le gère.
     const result = addItem(product);
 
     if (!result.success) {
@@ -29,10 +30,8 @@ export default function AddToDressingButton({ product }: { product: Product }) {
       return;
     }
 
-    // Feedback visuel
     setAdded(true);
 
-    // Retour automatique uniquement depuis la fiche produit
     if (isProductPage) {
       setTimeout(() => {
         router.push('/catalogue');
@@ -41,8 +40,37 @@ export default function AddToDressingButton({ product }: { product: Product }) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Sélecteur de taille — inchangé */}
+    <div className="flex flex-col gap-6">
+      
+      {/* --- SÉLECTEUR DE TAILLE INTERACTIF --- */}
+      {product.sizes && product.sizes.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <p className="text-[10px] uppercase tracking-widest text-neutral-400">
+            Sélectionner une taille :
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {product.sizes.map((size) => {
+              const isSelected = selectedSize === size;
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setSelectedSize(size)}
+                  className={`
+                    min-w-[48px] px-3 py-2.5 text-xs font-sans uppercase tracking-wider border transition-all duration-200
+                    ${isSelected 
+                      ? 'border-amber-400 bg-amber-400/10 text-amber-400 font-medium' 
+                      : 'border-neutral-800 text-neutral-300 hover:border-neutral-500'}
+                  `}
+                >
+                  {size}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {/* -------------------------------------- */}
 
       <button
         onClick={handleAdd}
@@ -56,7 +84,11 @@ export default function AddToDressingButton({ product }: { product: Product }) {
               : 'bg-white text-black hover:bg-amber-400'}
         `}
       >
-        {isAlreadyInCart || added ? '✓ Dans le dressing' : 'Ajouter au dressing'}
+        {isAlreadyInCart || added 
+          ? '✓ Dans le dressing' 
+          : !selectedSize 
+            ? 'Choisir une taille' 
+            : 'Ajouter au dressing'}
       </button>
 
       {added && isProductPage && (
