@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, X } from 'lucide-react';
+import { sendSignupConfirmationEmail } from '@/app/register/actions'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -41,7 +42,7 @@ export default function RegisterPage() {
       email,
       password,
       options: {
-      //mailRedirectTo: `${location.origin}/auth/callback`,
+      emailRedirectTo: `${location.origin}/catalogue`,
       data: {
       charte_accepted: true,
       charte_accepted_at: new Date().toISOString(),
@@ -53,6 +54,13 @@ export default function RegisterPage() {
       setError(authError.message);
       setLoading(false);
       return;
+    }
+
+if (data?.user) { 
+      const confirmUrl = `${location.origin}/auth/callback`;
+      // On retire le "await" pour envoyer le mail en tâche de fond 
+      // sans faire ramer l'écran de l'utilisatrice
+      sendSignupConfirmationEmail(email, confirmUrl);
     }
 
     router.push('/catalogue?welcome=true');
