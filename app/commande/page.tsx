@@ -138,10 +138,10 @@ export default function CommandePage() {
                     }`}
                   >
                     <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${deliveryType === type ? 'text-amber-400' : 'text-white'}`}>
-                      {type === 'delivery' ? '📦 Livraison' : '🤝 Main propre'}
+                      {type === 'delivery' ? '📦 Livraison' : '🤝 point relais'}
                     </p>
                     <p className="text-[9px] text-neutral-500 uppercase tracking-wider">
-                      {type === 'delivery' ? 'À votre adresse · 48-72h' : 'Paris · Pressing inclus'}
+                      {type === 'delivery' ? 'À la adresse · 48-72h' : 'Pas encore · disponible'}
                     </p>
                   </button>
                 ))}
