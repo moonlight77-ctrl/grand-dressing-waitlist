@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { updateOrderStatus } from '@/app/admin/commandes/actions';
 import { redirect } from 'next/navigation';
+import { getOrders } from './actions';
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending:   { label: 'En attente',  color: 'bg-neutral-700 text-neutral-300' },
@@ -22,15 +23,34 @@ const NEXT_STATUS: Record<string, string[]> = {
 
 export default async function AdminCommandesPage() {
   const supabase = await createClient();
+const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    redirect('/login'); // Pas connecté ? -> Direction la page de connexion
+  }
 
-  // Vérif admin basique — à remplacer par un vrai check de rôle
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  // On vérifie son rôle dans la table profiles
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('is_admin') // 💡 Si ta colonne s'appelle 'is_admin', remplace par 'is_admin'
+    .eq('id', user.id)
+    .single();
 
-  const { data: orders } = await supabase
-    .from('orders')
-    .select(`*, profiles(full_name)`)
-    .order('created_at', { ascending: false });
+  console.log("==== DEBUG ADMIN ====");
+  console.log("Utilisateur ID :", user.id);
+  console.log("Données du profil :", profile);
+  console.log("Erreur éventuelle :", profileError);
+
+  // Si le profil n'existe pas ou s'il n'est pas admin, on le jette de la page
+  if (!profile || !profile.is_admin) { // 💡 Ajuste selon ton champ (ex: !profile.is_admin)
+    redirect('/'); // Redirection immédiate vers la page d'accueil
+  }
+
+  // ==========================================
+  // RÉCUPÉRATION : TOUTES LES COMMANDES
+  // ==========================================
+  // 2. REMPLACEMENT : On n'utilise plus "supabase.from('orders').select()" ici !
+  // On appelle notre action qui utilise le serviceClient (super-admin)
+  const orders = await getOrders();
 
   const pendingCount = orders?.filter((o) => o.status === 'pending').length || 0;
 
