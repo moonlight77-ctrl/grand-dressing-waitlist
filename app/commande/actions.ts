@@ -132,11 +132,12 @@ export async function submitOrder(formData: OrderFormData, cartItems: CartItem[]
 }
 
 export async function getOrders() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
+  const serviceClient = getServiceClient(); // Utilise le super-admin
+  const { data, error } = await serviceClient
     .from('orders')
     .select(`*, profiles(full_name, avatar_url)`)
     .order('created_at', { ascending: false });
+    
   if (error) return [];
   return data;
 }
