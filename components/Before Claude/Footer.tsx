@@ -4,12 +4,12 @@ import { Sparkles } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="py-12 px-4 border-t border-gold-400/10 bg-neutral-950 font-sans">
+    <footer className="py-12 px-4 border-t border-amber-200/10 bg-neutral-950 font-sans">
       <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
         
         {/* Icône Décorative */}
         <div className="mb-8">
-          <Sparkles className="w-6 h-6 text-gold-400/40" strokeWidth={1} />
+          <Sparkles className="w-6 h-6 text-amber-200/40" strokeWidth={1} />
         </div>
 
         {/* Liens de Navigation & Réseaux */}
@@ -17,14 +17,14 @@ export default function Footer() {
           
           <Link 
             href="/mentions" 
-            className="hover:text-gold-400 transition-colors duration-300"
+            className="hover:text-amber-200 transition-colors duration-300"
           >
             Mentions Légales
           </Link>
 
           <a 
             href="mailto:gdcreativebrand@gmail.com" 
-            className="hover:text-gold-400 transition-colors duration-300"
+            className="hover:text-amber-200 transition-colors duration-300"
           >
             Contact
           </a>
@@ -33,7 +33,7 @@ export default function Footer() {
             href="https://www.instagram.com/gdcreativebrand?igsh=MWZkamQ2anNuYnIzaA==" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="hover:text-gold-400 transition-colors duration-300"
+            className="hover:text-amber-200 transition-colors duration-300"
           >
             Instagram
           </a>
@@ -42,7 +42,7 @@ export default function Footer() {
             href="https://www.tiktok.com/@gdcreativebrand?_r=1&_t=ZN-939rSfzYDeI" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="hover:text-gold-400 transition-colors duration-300"
+            className="hover:text-amber-200 transition-colors duration-300"
           >
             TikTok
           </a>

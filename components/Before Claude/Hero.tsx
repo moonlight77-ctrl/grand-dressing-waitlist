@@ -13,11 +13,11 @@ export default function Hero() {
       {/* --- BOUTON CLÉ (ACCÈS LOGIN) --- */}
       <Link 
         href="/login" 
-        className="fixed top-8 right-8 z-50 p-3 bg-neutral-900/50 backdrop-blur-md border border-gold-400/10 rounded-full group hover:border-gold-400/50 transition-all duration-500"
+        className="fixed top-8 right-8 z-50 p-3 bg-neutral-900/50 backdrop-blur-md border border-amber-200/10 rounded-full group hover:border-amber-400/50 transition-all duration-500"
         aria-label="Connexion membre"
       >
         <KeyRound 
-          className="w-5 h-5 text-gold-400/40 group-hover:text-gold-400 transition-colors" 
+          className="w-5 h-5 text-amber-200/40 group-hover:text-amber-400 transition-colors" 
           strokeWidth={1.2}
         />
       </Link>
@@ -44,12 +44,12 @@ export default function Hero() {
           
           {/* Icône décorative supérieure */}
           <div className="mb-6 flex justify-center">
-            <Sparkles className="w-8 h-8 text-gold-400" strokeWidth={1} />
+            <Sparkles className="w-8 h-8 text-amber-200" strokeWidth={1} />
           </div>
           
           <h1 className="font-display text-5xl sm:text-6xl md:text-8xl font-light mb-8 text-shadow-gold letter-spacing-luxury leading-tight">
             Votre garde-robe infinie
-            <span className="block mt-2 text-gold-400 font-normal">
+            <span className="block mt-2 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent font-normal">
               commence ici
             </span>
           </h1>
@@ -59,7 +59,7 @@ export default function Hero() {
           </p>
 
           {/* Formulaire d'inscription Waitlist */}
-          <Suspense fallback={<div className="h-20 flex items-center justify-center text-gold-400/50 font-sans text-sm tracking-widest">CHARGEMENT...</div>}>
+          <Suspense fallback={<div className="h-20 flex items-center justify-center text-amber-200/50 font-sans text-sm tracking-widest">CHARGEMENT...</div>}>
             <WaitlistForm />
           </Suspense>
           
@@ -68,7 +68,7 @@ export default function Hero() {
 
       {/* Scroll Indicator (Petit rappel visuel en bas) */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce opacity-40">
-        <div className="w-px h-12 bg-gradient-to-b from-gold-400 to-transparent"></div>
+        <div className="w-px h-12 bg-gradient-to-b from-amber-200 to-transparent"></div>
       </div>
     </div>
   );

@@ -5,11 +5,19 @@
   /* On lie les classes font-display et font-sans aux variables définies dans layout.tsx */
   --font-display: var(--font-cormorant);
   --font-sans: var(--font-montserrat);
+
+  /* Palette "or mat" — identité luxe/haute couture, en remplacement du amber/yellow vif */
+  --color-gold-100: #f4ecd8;
+  --color-gold-200: #e6d4a8;
+  --color-gold-300: #d6bd7f;
+  --color-gold-400: #c9a961; /* Accent principal */
+  --color-gold-500: #b8973f;
+  --color-gold-600: #9c7f35;
 }
 
 /* Ajout des utilitaires personnalisés présents dans votre code original */
 @utility text-shadow-gold {
-  text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+  text-shadow: 0 0 30px rgba(201, 169, 97, 0.25);
 }
 
 @utility letter-spacing-luxury {
