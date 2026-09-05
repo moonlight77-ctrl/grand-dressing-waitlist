@@ -139,7 +139,7 @@ export default function WaitlistForm() {
     )}&ref=${encodeURIComponent(referralCode)}`;
 
     return (
-      <div className="max-w-lg mx-auto bg-neutral-900/50 backdrop-blur-md border border-gold-400/10 p-6 md:p-10 animate-in fade-in zoom-in duration-500">
+      <div className="max-w-lg mx-auto bg-neutral-950/95 backdrop-blur-xl border border-gold-400/10 p-6 md:p-10 animate-in fade-in zoom-in duration-500">
         <div className="text-center mb-6">
           <p className="font-sans text-xs uppercase letter-spacing-luxury tracking-[0.2em] text-gold-400 mb-2">
             Vous êtes sur la liste ✨
@@ -169,7 +169,7 @@ export default function WaitlistForm() {
 
         <button
           onClick={() => setStep('referral')}
-          className="font-sans text-xs text-neutral-500 hover:text-neutral-300 uppercase letter-spacing-luxury tracking-widest mt-6 mx-auto block transition-colors cursor-pointer"
+          className="font-sans text-xs text-neutral-400 hover:text-gold-400 uppercase letter-spacing-luxury tracking-widest mt-6 pb-1 mx-auto block transition-colors cursor-pointer"
         >
           Passer cette étape pour l'instant
         </button>
@@ -180,7 +180,7 @@ export default function WaitlistForm() {
   // --- ÉTAPE 3 : PARRAINAGE (succès final) ---
   if (step === 'referral') {
     return (
-      <div className="max-w-lg mx-auto bg-neutral-900/50 backdrop-blur-md border border-gold-400/10 p-8 md:p-12 animate-in fade-in zoom-in duration-500">
+      <div className="max-w-lg mx-auto bg-neutral-950/95 backdrop-blur-xl border border-gold-400/10 p-8 md:p-12 animate-in fade-in zoom-in duration-500">
         <div className="text-center mb-6">
           <Check className="w-8 h-8 text-gold-400 mx-auto mb-3" strokeWidth={1.2} />
           <h3 className="font-display text-xl md:text-2xl font-light">Bienvenue dans le cercle</h3>
